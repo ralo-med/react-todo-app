@@ -1,25 +1,17 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { useAtom } from "jotai";
+import { GlobalStyle } from "./styles/GlobalStyle";
+import { themeAtom } from "./atoms/themeAtom";
+import ToDoList from "./ToDoList";
 
 function App() {
+  const [theme] = useAtom(themeAtom);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyle theme={theme} />
+      <ToDoList />
+    </>
   );
 }
 
