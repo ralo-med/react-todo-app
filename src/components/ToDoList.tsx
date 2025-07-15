@@ -1,11 +1,13 @@
 // Jotai: useAtom, useSetAtom
 // Recoil: useRecoilState, useRecoilValue, useRecoilSet
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import {
   selectedCategoryAtom,
   selectedCategoryTodosAtom,
   todoStatsAtom,
-  Category,
+  allCategoriesAtom,
+  deleteCustomCategoryAtom,
+  DefaultCategory,
 } from "../atoms/todoAtom";
 import CreateToDo from "./CreateToDo";
 import ToDo from "./ToDo";
@@ -18,52 +20,130 @@ function ToDoList() {
   const [selectedCategoryTodos] = useAtom(selectedCategoryTodosAtom);
 
   const [stats] = useAtom(todoStatsAtom);
+  const [allCategories] = useAtom(allCategoriesAtom);
+  const deleteCustomCategory = useSetAtom(deleteCustomCategoryAtom);
 
-  const categories = [
-    {
-      key: Category.TO_DO,
-      label: "할 일",
-      count: stats.todo,
-      color: "#ffc107",
-    },
-    {
-      key: Category.DOING,
-      label: "진행 중",
-      count: stats.doing,
-      color: "#17a2b8",
-    },
-    { key: Category.DONE, label: "완료", count: stats.done, color: "#28a745" },
-  ] as const;
+  const getCategoryLabel = (categoryId: string) => {
+    const category = allCategories.find((cat) => cat.id === categoryId);
+    return category?.name || categoryId;
+  };
 
-  const getCategoryLabel = (category: Category) => {
-    return categories.find((c) => c.key === category)?.label || category;
+  const getCategoryCount = (categoryId: string) => {
+    return (stats as Record<string, number>)[categoryId] || 0;
+  };
+
+  const isDefaultCategory = (categoryId: string) => {
+    return Object.values(DefaultCategory).includes(
+      categoryId as DefaultCategory
+    );
+  };
+
+  const handleDeleteCategory = (categoryId: string, categoryName: string) => {
+    if (
+      window.confirm(
+        `"${categoryName}" 카테고리를 삭제하시겠습니까? 해당 카테고리의 모든 할일들도 함께 삭제됩니다.`
+      )
+    ) {
+      deleteCustomCategory(categoryId);
+    }
   };
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
-      <h1>To Do List</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "30px", color: "#333" }}>
+        To Do List
+      </h1>
 
       {/* 카테고리 선택 */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>카테고리 선택</h3>
-        <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-          {categories.map(({ key, label, count, color }) => (
-            <button
-              key={key}
-              onClick={() => setSelectedCategory(key)}
+      <div
+        style={{
+          marginBottom: "30px",
+          padding: "20px",
+          backgroundColor: "#f8f9fa",
+          borderRadius: "12px",
+          border: "1px solid #e9ecef",
+        }}
+      >
+        <h3
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            color: "#495057",
+            fontSize: "18px",
+            fontWeight: "600",
+          }}
+        >
+          카테고리 선택
+        </h3>
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            marginBottom: "15px",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          }}
+        >
+          {allCategories.map((category) => (
+            <div
+              key={category.id}
               style={{
-                padding: "10px 20px",
-                border: `2px solid ${color}`,
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                backgroundColor:
-                  selectedCategory === key ? color + "20" : "white",
-                color: selectedCategory === key ? color : "#333",
+                position: "relative",
+                display: "inline-block",
               }}
             >
-              {label} ({count}개)
-            </button>
+              <button
+                onClick={() => setSelectedCategory(category.id)}
+                style={{
+                  padding: "6px 12px",
+                  border: `2px solid ${category.color}`,
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  backgroundColor:
+                    selectedCategory === category.id
+                      ? category.color + "20"
+                      : "white",
+                  color: "#333",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span>
+                  {category.name} ({getCategoryCount(category.id)}개)
+                </span>
+                {!isDefaultCategory(category.id) && (
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteCategory(category.id, category.name);
+                    }}
+                    style={{
+                      color: "#999",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      lineHeight: "1",
+                      padding: "1px 4px",
+                      borderRadius: "2px",
+                      transition: "color 0.2s",
+                      marginLeft: "8px",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#666";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "#999";
+                    }}
+                    title={`${category.name} 카테고리 삭제`}
+                  >
+                    ×
+                  </span>
+                )}
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -71,23 +151,24 @@ function ToDoList() {
       <CreateToDo />
 
       <div style={{ marginTop: "30px" }}>
-        <h2>
-          {getCategoryLabel(selectedCategory)} 목록 (
-          {selectedCategoryTodos.length}개)
-        </h2>
-
-        {stats.total === 0 ? (
+        {selectedCategoryTodos.length > 0 ? (
+          <>
+            <h2>
+              {getCategoryLabel(selectedCategory)} (
+              {selectedCategoryTodos.length}개)
+            </h2>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {selectedCategoryTodos.map((todo) => (
+                <ToDo key={todo.id} todo={todo} />
+              ))}
+            </ul>
+          </>
+        ) : stats.total === 0 ? (
           <p style={{ color: "#666", textAlign: "center" }}>할일이 없습니다.</p>
-        ) : selectedCategoryTodos.length === 0 ? (
+        ) : (
           <p style={{ color: "#666", textAlign: "center" }}>
             {getCategoryLabel(selectedCategory)}이 없습니다.
           </p>
-        ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {selectedCategoryTodos.map((todo) => (
-              <ToDo key={todo.id} todo={todo} />
-            ))}
-          </ul>
         )}
       </div>
     </div>
