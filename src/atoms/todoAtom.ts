@@ -1,17 +1,24 @@
 import { atom } from "jotai";
 
+// 카테고리 enum 정의
+export enum Category {
+  TO_DO = "TO_DO",
+  DOING = "DOING",
+  DONE = "DONE",
+}
+
 export interface ITodo {
   id: number;
   text: string;
-  category: "TO_DO" | "DOING" | "DONE";
+  category: Category;
 }
 
 // Jotai: atom<Type>(initialValue) - 상태 저장
 // Recoil: atom({ key: 'string', default: value }) - 상태 저장
 export const todosAtom = atom<ITodo[]>([]);
 
-// 유저가 선택한 카테고리 (기본값: "TO_DO")
-export const selectedCategoryAtom = atom<"TO_DO" | "DOING" | "DONE">("TO_DO");
+// 유저가 선택한 카테고리 (기본값: TO_DO)
+export const selectedCategoryAtom = atom<Category>(Category.TO_DO);
 
 // Jotai: atom(null, (get, set, param) => { ... }) - 액션 (setTodos 역할)
 // Recoil: selector({ key: 'string', get: ({get}) => {}, set: ({get, set}, param) => {} }) - 액션
@@ -39,11 +46,11 @@ export const toggleTodoAtom = atom(null, (get, set, id: number) => {
     newTodos[index] = {
       ...todo,
       category:
-        todo.category === "TO_DO"
-          ? "DOING"
-          : todo.category === "DOING"
-          ? "DONE"
-          : "TO_DO",
+        todo.category === Category.TO_DO
+          ? Category.DOING
+          : todo.category === Category.DOING
+          ? Category.DONE
+          : Category.TO_DO,
     };
 
     set(todosAtom, newTodos);
@@ -65,9 +72,9 @@ export const deleteTodoAtom = atom(null, (get, set, id: number) => {
 export const todosByCategoryAtom = atom((get) => {
   const todos = get(todosAtom);
   return {
-    todo: todos.filter((todo) => todo.category === "TO_DO"),
-    doing: todos.filter((todo) => todo.category === "DOING"),
-    done: todos.filter((todo) => todo.category === "DONE"),
+    todo: todos.filter((todo) => todo.category === Category.TO_DO),
+    doing: todos.filter((todo) => todo.category === Category.DOING),
+    done: todos.filter((todo) => todo.category === Category.DONE),
   };
 });
 
@@ -91,9 +98,9 @@ export const selectedCategoryTodosAtom = atom((get) => {
   const selectedCategory = get(selectedCategoryAtom);
 
   const categoryMap = {
-    TO_DO: todosByCategory.todo,
-    DOING: todosByCategory.doing,
-    DONE: todosByCategory.done,
+    [Category.TO_DO]: todosByCategory.todo,
+    [Category.DOING]: todosByCategory.doing,
+    [Category.DONE]: todosByCategory.done,
   };
 
   return categoryMap[selectedCategory];

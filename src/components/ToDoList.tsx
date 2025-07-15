@@ -5,6 +5,7 @@ import {
   selectedCategoryAtom,
   selectedCategoryTodosAtom,
   todoStatsAtom,
+  Category,
 } from "../atoms/todoAtom";
 import CreateToDo from "./CreateToDo";
 import ToDo from "./ToDo";
@@ -19,12 +20,22 @@ function ToDoList() {
   const [stats] = useAtom(todoStatsAtom);
 
   const categories = [
-    { key: "TO_DO", label: "할 일", count: stats.todo, color: "#ffc107" },
-    { key: "DOING", label: "진행 중", count: stats.doing, color: "#17a2b8" },
-    { key: "DONE", label: "완료", count: stats.done, color: "#28a745" },
+    {
+      key: Category.TO_DO,
+      label: "할 일",
+      count: stats.todo,
+      color: "#ffc107",
+    },
+    {
+      key: Category.DOING,
+      label: "진행 중",
+      count: stats.doing,
+      color: "#17a2b8",
+    },
+    { key: Category.DONE, label: "완료", count: stats.done, color: "#28a745" },
   ] as const;
 
-  const getCategoryLabel = (category: string) => {
+  const getCategoryLabel = (category: Category) => {
     return categories.find((c) => c.key === category)?.label || category;
   };
 
