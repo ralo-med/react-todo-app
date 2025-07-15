@@ -55,3 +55,29 @@ export const deleteTodoAtom = atom(null, (get, set, id: number) => {
     todos.filter((todo) => todo.id !== id)
   );
 });
+
+// Jotai: atom((get) => { ... }) - 파생된 상태 (selector 역할)
+// Recoil: selector({ key: 'string', get: ({get}) => {} }) - 파생된 상태
+export const todoStatsAtom = atom((get) => {
+  const todos = get(todosAtom);
+  return {
+    total: todos.length,
+    todo: todos.filter((todo) => todo.category === "TO_DO").length,
+    doing: todos.filter((todo) => todo.category === "DOING").length,
+    done: todos.filter((todo) => todo.category === "DONE").length,
+  };
+});
+
+// 이렇게만 있어도 됨
+export const todosByCategoryAtom = atom((get) => {
+  const todos = get(todosAtom);
+  return {
+    todo: todos.filter((todo) => todo.category === "TO_DO"),
+    doing: todos.filter((todo) => todo.category === "DOING"),
+    done: todos.filter((todo) => todo.category === "DONE"),
+  };
+});
+
+// 필요하면 이렇게 계산 가능
+// incompleteTodos = [...todosByCategory.todo, ...todosByCategory.doing]
+// completedTodos = todosByCategory.done
