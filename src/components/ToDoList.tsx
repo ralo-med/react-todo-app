@@ -21,51 +21,11 @@ function ToDoList() {
         {todos.length === 0 ? (
           <p style={{ color: "#666", textAlign: "center" }}>할일이 없습니다.</p>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: "20px",
-            }}
-          >
-            {/* TO_DO */}
-            <div>
-              <h3 style={{ color: "#dc3545", marginBottom: "10px" }}>할 일</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {todos
-                  .filter((todo) => todo.category === "TO_DO")
-                  .map((todo) => (
-                    <ToDo key={todo.id} todo={todo} />
-                  ))}
-              </ul>
-            </div>
-
-            {/* DOING */}
-            <div>
-              <h3 style={{ color: "#ffc107", marginBottom: "10px" }}>
-                진행 중
-              </h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {todos
-                  .filter((todo) => todo.category === "DOING")
-                  .map((todo) => (
-                    <ToDo key={todo.id} todo={todo} />
-                  ))}
-              </ul>
-            </div>
-
-            {/* DONE */}
-            <div>
-              <h3 style={{ color: "#28a745", marginBottom: "10px" }}>완료</h3>
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {todos
-                  .filter((todo) => todo.category === "DONE")
-                  .map((todo) => (
-                    <ToDo key={todo.id} todo={todo} />
-                  ))}
-              </ul>
-            </div>
-          </div>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {todos.map((todo) => (
+              <ToDo key={todo.id} todo={todo} />
+            ))}
+          </ul>
         )}
       </div>
     </div>
