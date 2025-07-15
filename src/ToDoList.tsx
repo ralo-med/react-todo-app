@@ -1,26 +1,24 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 function ToDoList() {
-  const [todo, setTodo] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm();
 
-  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
-    const {
-      currentTarget: { value },
-    } = e;
-    setTodo(value);
+  const onValid = (data: any) => {
+    console.log(data);
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log(todo);
-  };
+  console.log(isValid);
 
   return (
     <div>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit(onValid)}>
         <input
-          value={todo}
-          onChange={onChange}
+          {...register("todo")}
+          // register함수가 반환하는 객체를 가져다가 input에 props로 준다
           type="text"
           placeholder="할 일을 입력하세요."
         />
