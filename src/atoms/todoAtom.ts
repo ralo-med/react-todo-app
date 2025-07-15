@@ -26,22 +26,24 @@ export const addTodoAtom = atom(null, (get, set, text: string) => {
 // Recoil: selector({ key: 'string', get: ({get}) => {}, set: ({get, set}, param) => {} }) - 액션
 export const toggleTodoAtom = atom(null, (get, set, id: number) => {
   const todos = get(todosAtom);
-  set(
-    todosAtom,
-    todos.map((todo) =>
-      todo.id === id
-        ? ({
-            ...todo,
-            category:
-              todo.category === "TO_DO"
-                ? "DOING"
-                : todo.category === "DOING"
-                ? "DONE"
-                : "TO_DO",
-          } as ITodo)
-        : todo
-    )
-  );
+  const index = todos.findIndex((todo) => todo.id === id);
+
+  if (index !== -1) {
+    const newTodos = [...todos];
+    const todo = newTodos[index];
+
+    newTodos[index] = {
+      ...todo,
+      category:
+        todo.category === "TO_DO"
+          ? "DOING"
+          : todo.category === "DOING"
+          ? "DONE"
+          : "TO_DO",
+    };
+
+    set(todosAtom, newTodos);
+  }
 });
 
 // Jotai: atom(null, (get, set, param) => { ... }) - 액션 (setTodos 역할)
