@@ -127,6 +127,7 @@ export const toggleTodoAtom = atom(null, (get, set, id: number) => {
       (cat) => cat.id === todo.category
     );
     const nextIndex = (currentIndex + 1) % allCategories.length;
+    //개쩌네 ㅋㅋ 순환해서 다시 1번으로 돌아가도록
 
     newTodos[index] = {
       ...todo,
