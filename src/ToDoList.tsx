@@ -1,13 +1,19 @@
 import { useForm } from "react-hook-form";
 
+interface IForm {
+  email: string;
+}
+
 function ToDoList() {
   const {
     register,
     handleSubmit,
-    formState: { isValid },
-  } = useForm();
+    formState: { isValid, errors },
+  } = useForm<IForm>({
+    mode: "onChange",
+  });
 
-  const onValid = (data: any) => {
+  const onValid = (data: IForm) => {
     console.log(data);
   };
 
@@ -17,12 +23,18 @@ function ToDoList() {
     <div>
       <form onSubmit={handleSubmit(onValid)}>
         <input
-          {...register("todo")}
-          // register함수가 반환하는 객체를 가져다가 input에 props로 준다
-          type="text"
-          placeholder="할 일을 입력하세요."
+          {...register("email", {
+            required: "이메일을 입력해주세요.",
+            pattern: {
+              value: /^[a-zA-Z0-9._%+-]+@naver\.com$/,
+              message: "@naver.com으로 끝나는 이메일을 입력해주세요.",
+            },
+          })}
+          type="email"
+          placeholder="naver.com 이메일을 입력하세요."
         />
-        <button>추가</button>
+        <button disabled={!isValid}>추가</button>
+        {errors.email && <p style={{ color: "red" }}>{errors.email.message}</p>}
       </form>
     </div>
   );
